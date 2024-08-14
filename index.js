@@ -13,7 +13,6 @@ app.use(express.json());
 app.get('/banner', async (req, res) => {
     try {
         const [rows] = await pool.query('select * from banner order by created_at desc');
-        console.log('Rows:', rows);
         res.json(rows);
     } catch (err) {
         console.error('Error executing query:', err.stack);
@@ -23,17 +22,17 @@ app.get('/banner', async (req, res) => {
 
 // POST method to add a new banner
 app.post('/banner', async (req, res) => {
-    const { description, target_datetime, banner_link, visible } = req.body;
+    const { title, description, target_datetime, banner_link, visible } = req.body;
 
     // Validate input
-    if (!description || !target_datetime || !banner_link || typeof visible !== 'boolean') {
-        return res.status(400).send('Invalid input');
+    if (!title || !description || !target_datetime || !banner_link || typeof visible !== 'boolean') {
+        return res.status(400).send({'error': 'Invalid input'});
     }
 
     try {
         // Insert the new banner into the database
-        const query = 'INSERT INTO banner (description, target_datetime, banner_link, visible) VALUES (?, ?, ?, ?)';
-        const [result] = await pool.query(query, [description, target_datetime, banner_link, visible]);
+        const query = 'INSERT INTO banner (title, description, target_datetime, banner_link, visible) VALUES (?, ?, ?, ?, ?)';
+        const [result] = await pool.query(query, [title, description, target_datetime, banner_link, visible]);
 
         // Fetch the newly inserted banner including the created_at timestamp
         const [newBanner] = await pool.query('SELECT * FROM banner WHERE id = ?', [result.insertId]);
@@ -51,7 +50,7 @@ app.put('/banner/:id', async (req, res) => {
     const { description, target_datetime, banner_link, visible } = req.body;
 
     if (isNaN(bannerId) || !description || !target_datetime || !banner_link || typeof visible !== 'boolean') {
-        return res.status(400).send('Invalid input');
+        return res.status(400).send({'error': 'Invalid input'});
     }
 
     try {
@@ -74,7 +73,7 @@ app.delete('/banner/:id', async (req, res) => {
     const bannerId = parseInt(req.params.id, 10);
 
     if (isNaN(bannerId)) {
-        return res.status(400).send('Invalid banner ID');
+        return res.status(400).send({'error': 'Invalid banner ID'});
     }
 
     try {
