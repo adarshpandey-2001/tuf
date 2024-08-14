@@ -26,9 +26,16 @@ const Home = () => {
         <>
             <div className="container">
                 <h1 className="text-center my-2">Home - Banner Display</h1>
-                {banner.map((item) => {
-                    return <Banner data={item} key={item.id} />
-                })}
+                {banner.length > 0 ?
+                <>
+                    {
+                        banner.map((item) => {
+                            return <Banner data={item} key={item.id} />
+                        })
+                    } 
+                    </>:
+                    <p className='text-center'>No banners to display. Add banners from admin page.</p>
+                }
             </div>
         </>
     )
